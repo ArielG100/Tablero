@@ -43,17 +43,15 @@ const int pinLatcha_periodo = 35;
 
 
 unsigned long tiempo_inicial_recibido;
-unsigned long valor_cronometro_inicial;
+unsigned long valor_cronometro_inicial = 1;
 
 bool timer_active = false;
 unsigned long start_time;
 unsigned long paused_time = 0;
-unsigned long duration = 0;  // Duración del reloj de arena en milisegundos
+unsigned long duration = 0;
 
 void setup() {
-  //Serial.begin(9600);      // Configura la velocidad de transmisión (baud rate) para el monitor serial
-  // megaSerial.begin(9600);  // Configura la velocidad de transmisión (baud rate) para la comunicación con el ESP8266
-  Serial.begin(9600);
+
   pinMode(pinClock, OUTPUT);
 
   pinMode(pinData_Cronometro, OUTPUT);
@@ -74,23 +72,38 @@ void setup() {
   pinMode(pinLatcha_faltas_visita, OUTPUT);
   pinMode(pinData_periodo, OUTPUT);
   pinMode(pinLatcha_periodo, OUTPUT);
-
+  //Cambios con la version cargada en el tablero 
+  // delay removido y los demas delay de 1000ms pasaron a 500mx
+  // delay(1000);
+  imprimir_encender_cronometro(0);
+  delay(500);
+  imprimir_marcador_local(0);
+  imprimir_marcador_visita(0);
+  delay(500);
+  imprimir_periodo(0);
+  delay(500);
+  imprimir_faltas_local(0);
+  imprimir_faltas_visita(0);
+  delay(500);
+  Serial.begin(9600);
 }
 
 void loop() {
   if (Serial.available()) {
-    String data = Serial.readStringUntil('\n');  
+    String data = Serial.readStringUntil('\n');
     sscanf(data.c_str(), "%hhu,%hhu,%hhu,%hhu,%hhu,%hhu,%hhu", &valor_local, &valor_visita, &valor_falta_local, &valor_falta_visita, &estado_cronometro, &tiempo_cronometro, &valor_periodo);
 
     if (estado_cronometro != 1 && tiempo_cronometro != valor_cronometro_inicial) {
+      // Serial.print("Valor cronometro:");
+      // Serial.println(tiempo_cronometro);
       // Este bloque de código se ejecutará si estado_cronometro no es igual a 1
       // y si estado_cronometro no es igual a valor_cronometro_inicial
       valor_cronometro_inicial = tiempo_cronometro;
       tiempo_inicial_recibido = tiempo_cronometro * 300000;
-      imprimir_encender_cronometro(tiempo_inicial_recibido / 1000);
+      imprimir_encender_cronometro(tiempo_inicial_recibido);
       duration = tiempo_inicial_recibido;
-      Serial.print("duration: ");
-      Serial.println(duration);
+      // Serial.print("duration: ");
+      // Serial.println(duration);
       timer_active = false;
     }
 
@@ -115,7 +128,7 @@ void loop() {
       duration = tiempo_inicial_recibido;
       paused_time = 0;
       timer_active = false;
-      imprimir_encender_cronometro(tiempo_inicial_recibido / 1000);
+      imprimir_encender_cronometro(tiempo_inicial_recibido);
     }
 
 
@@ -134,7 +147,7 @@ void loop() {
     // Comprobar si el tiempo transcurrido es menor que la duración del reloj de arena
     if (elapsedTime < duration) {
       // Imprimir el tiempo restante en segundos
-      unsigned long remainingTime = (duration - elapsedTime) / 1000;  // Convertir a segundos
+      unsigned long remainingTime = (duration - elapsedTime);
 
       Serial.print("Tiempo restante: ");
       Serial.print(remainingTime);

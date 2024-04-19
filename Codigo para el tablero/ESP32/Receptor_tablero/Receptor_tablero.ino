@@ -1,35 +1,24 @@
-/*
-  Rui Santos
-  Complete project details at https://RandomNerdTutorials.com/esp-now-esp8266-nodemcu-arduino-ide/
 
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files.
-
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-*/
 
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-//#include <SoftwareSerial.h>
-
-//SoftwareSerial espSerial(13, 15);  // RX, TX (Configura los pines RX y TX según corresponda)
 
 // Structure example to receive data
 // Must match the sender structure
 typedef struct struct_message {
   uint8_t a;
-  uint8_t b;
-  uint8_t c;
-  uint8_t d;
-  uint8_t e;
-  uint8_t f;
-  uint8_t g;
+  // uint8_t b;
+  // uint8_t c;
+  // uint8_t d;
+  // uint8_t e;
+  // uint8_t f;
+  // uint8_t g;
 } struct_message;
 
-uint8_t valor_local, valor_visita, valor_falta_local, valor_falta_visita, estado_cronometro,tiempo_cronometro, valor_periodo;
+uint8_t dato = 0; 
 
+uint8_t valor_local, valor_visita, valor_falta_local, valor_falta_visita, estado_cronometro, tiempo_cronometro, valor_periodo;
 // Create a struct_message called myData
 struct_message myData;
 
@@ -51,20 +40,68 @@ void OnDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
     Serial.println(myData.f);
   */
   // Asigna el valor que recibe de la botonera a variables para enviar
-  valor_local = myData.a;
-  valor_visita = myData.b;
-  valor_falta_local = myData.c;
-  valor_falta_visita = myData.d;
-  estado_cronometro = myData.e;
-  tiempo_cronometro = myData.f;
-  valor_periodo = myData.g;
+  dato = myData.a;
+  switch (dato) {
+    case 1:
+      valor_local = constrain(valor_local + 1, 0, 199);
+      break;
+    case 2:
+      valor_local = constrain(valor_local - 1, 0, 199);
+      break;
+    case 3:
+      valor_visita = constrain(valor_visita + 1, 0, 199);
+      break;
+    case 4:
+      valor_visita = constrain(valor_visita - 1, 0, 199);
+      break;
+    case 5:
+      valor_falta_local = constrain(valor_falta_local + 1, 0, 9);
+      break;
+    case 6:
+      valor_falta_visita = constrain(valor_falta_visita + 1, 0, 9);
+      break;
+    case 7:
+      // Acción para pausar
+      estado_cronometro = 2;
+      break;
+    case 8:
+      // Acción para iniciar
+      estado_cronometro = 1;
+      break;
+    case 9:
+      // Acción para reiniciar
+      estado_cronometro = 3;
+      break;
+    case 10:
+      valor_periodo = constrain(valor_periodo + 1, 0, 9);
+      break;
+    case 11:
+      valor_periodo = constrain(valor_periodo - 1, 0, 9);
+      break;
+    case 12:
+      tiempo_cronometro = constrain(tiempo_cronometro + 1, 1, 19);
+      break;
+    case 13:
+      tiempo_cronometro = constrain(tiempo_cronometro - 1, 1, 19);
+      break;
+    default:
+      // Acción por defecto si dato no coincide con ningún caso
+      break;
+  }
+  dato = 0;
+  // valor_visita = myData.b;
+  // valor_falta_local = myData.c;
+  // valor_falta_visita = myData.d;
+  // estado_cronometro = myData.e;
+  // tiempo_cronometro = myData.f;
+  // valor_periodo = myData.g;
 
 
-  valor_local = constrain(valor_local, 0, 199);
-  valor_visita = constrain(valor_visita, 0, 199);
-  valor_falta_local = constrain(valor_falta_local, 0, 9);
-  valor_falta_visita = constrain(valor_falta_visita, 0, 9);
-  valor_periodo = constrain(valor_periodo, 0, 9);
+  // valor_local = constrain(valor_local, 0, 199);
+  // valor_visita = constrain(valor_visita, 0, 199);
+  // valor_falta_local = constrain(valor_falta_local, 0, 9);
+  // valor_falta_visita = constrain(valor_falta_visita, 0, 9);
+  // valor_periodo = constrain(valor_periodo, 0, 9);
 
   // Envía las variables al Arduino Mega
   Serial.print(valor_local);
@@ -75,7 +112,7 @@ void OnDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
   Serial.print(",");
   Serial.print(valor_falta_visita);
   Serial.print(",");
-  Serial.print(estado_cronometro);//1 star 0 stop 2 reset
+  Serial.print(estado_cronometro);  // 1 star 2 stop 3 reset
   Serial.print(",");
   Serial.print(tiempo_cronometro);
   Serial.print(",");
@@ -86,6 +123,13 @@ void OnDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
 void setup() {
   // Initialize Serial Monitor
   Serial.begin(9600);
+  valor_local = 0;
+  valor_visita = 0;
+  valor_falta_local = 0;
+  valor_falta_visita = 0;
+  estado_cronometro = 0;
+  tiempo_cronometro = 0;
+  valor_periodo = 0;
   //espSerial.begin(9600);  // Configura la velocidad de transmisión (baud rate)
 
   // Set device as a Wi-Fi Station
@@ -104,6 +148,4 @@ void setup() {
 }
 
 void loop() {
-
-
 }
