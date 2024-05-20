@@ -26,3 +26,9 @@ El sistema está compuesto por una consola de control sentral que transmite las 
 ### Protocolo de Comunicación
 
 - **ESP-NOW Wireless Communication Protocol:** Utilizado para la transmisión de datos entre los microcontroladores de manera eficiente y rápida.
+
+### Imagen del Tablero Principal:
+![Imagen del Tablero Principal](Tablero_principal.jpg)
+
+### Imagen de la Consola de control:
+![imagen de la Consola de control](Consola_de_control.jpg)
